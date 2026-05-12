@@ -19,7 +19,8 @@
     {
       "expression": "(N (N (N science)*(N (N text) (N book))) (Af s))",
       "notes": ""
-    },{
+    },
+    {
       "expression": "(N (N (N (N ice)*(N cream))*(N sundae)) (Af s))",
       "notes": ""
     },
@@ -37,5 +38,5 @@
     }
   ],
   "description": "Course: Morphology Part 3/3",
- "title": "Course: Morphology Part 3/3"
+  "title": "Course: Morphology Part 3/3"
 }

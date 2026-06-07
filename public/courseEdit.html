@@ -4,89 +4,143 @@
     <script src="scripts/JSON_API.js"></script>
     <script> 
     document.addEventListener('DOMContentLoaded', ()=>loadCourse(), { once: true });
-    let courseCount = 7
 
-function loadCourse(courseID=1){
-    JSON_API(undefined,courseID,undefined, "admin")
-        .then((data) => {
-            problemJSON = data
-            init(problemJSON, courseID)
-        })
-}
+    // HTML cannot read directories, so we use a dictionary to match the PHP version's logic
+    let courseList = {
+        1: "test1",
+        2: "test2",
+        3: "test3",
+        4: "test4",
+        5: "test 5",
+        6: "Course: Morphology Part 1/3",
+        7: "Course: Morphology Part 2/3",
+        8: "Course: Morphology Part 3/3",
+        14: "Course: Syntax Part 1/8",
+        15: "Course: Syntax Part 2/8",
+        16: "Course: Syntax Part 3/8",
+        17: "Course: Syntax Part 4/8",
+        18: "Course: Syntax Part 5/8",
+        19: "Course: Syntax Part 6/8",
+        20: "Course: Syntax Part 7/8",
+        21: "Course: Syntax Part 8/8"
+    };
+    console.log(courseList);
+
+    function loadCourse(courseID=1){
+        JSON_API(undefined,courseID,undefined, "admin")
+            .then((data) => {
+                let problemJSON = data;
+                init(problemJSON, courseID);
+            });
+    }
 
     function resizeInput(inputEl) {
-    inputEl.style.height = Math.min(inputEl.scrollHeight, 3000000) + "px";
-    inputEl.style.width = Math.min(inputEl.scrollWidth, 3000000) + "px";
-    };
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 3000000) + "px";
+        inputEl.style.width = Math.min(inputEl.scrollWidth, 3000000) + "px";
+    }
         
-    function init(problemJSON, courseID=1) 
-{document.body.innerHTML = ""
-let select = Object.assign(document.createElement("select"),{id:"select", innerHTML:"Select from here"})
-for (i=1; i < courseCount+1; i++){
-    let option = Object.assign(document.createElement("option"),{innerHTML:`${i}`, id:`course_${i}`})
-    select.appendChild(option);
-}
-document.body.append(select);
-introText("Select Course: ", select);
-document.getElementById('select').options.selectedIndex = courseID-1
-document.getElementById("select").addEventListener('change', ()=>changeCourse());
-    document.body.append(Object.assign(document.createElement("button"),{id:"submit", innerHTML:"Submit All"})) 
-    br()
-    var i = 1;
-    problemJSON.holes.forEach(hole=> {
-        let expressionArea=Object.assign(document.createElement("textArea"),{className:"expression", value:hole.expression, style:"width:35rem"})
-        let descArea=Object.assign(document.createElement("input"),{className: "notes",type:"text", value:hole.notes, style:"width:40rem"})
-        document.body.append(expressionArea)  
-        introText(`hole ${i}'s expression: `, expressionArea);      
-        br()
-        document.body.append(descArea)
-        introText(`note: `, descArea);  
-        br()
-        i +=1;
-    });
-    let description = Object.assign(document.createElement("textArea"),{className:"description",innerHTML:problemJSON.description, style:"width:20rem"})
-    document.body.append(description)
-    introText(`Description for course ${courseID}: `, description);  
-    document.querySelectorAll("textArea").forEach(resizeInput)
-    document.getElementById("submit").addEventListener('click', ()=>submitCourse(courseID), { once: true });
+    function init(problemJSON, courseID=1) {
+        document.body.innerHTML = "";
+        
+        // 1. Updated Dropdown with Placeholder
+        let select = Object.assign(document.createElement("select"),{id:"select"});
+        let defaultOption = document.createElement("option");
+        defaultOption.text = "Select from here";
+        defaultOption.value = ""; 
+        defaultOption.disabled = true; 
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+        
+        for (const [id, courseTitle] of Object.entries(courseList)) {
+            let option = Object.assign(document.createElement("option"),{innerHTML:`${courseTitle}`, value:`${id}`});
+            select.appendChild(option);
+        }
+        document.body.append(select);
+        introText(`Select Course: `, select);
+        
+        document.getElementById("select").addEventListener('change', ()=>changeCourse());
+        document.body.append(Object.assign(document.createElement("button"),{id:"submit", innerHTML:"Submit"})); 
+        br();
+        
+        // 2. Added Title Span
+        const titleSpan = document.createElement('span');
+        let pageTitle = document.createTextNode(`${problemJSON.title}`);
+        titleSpan.append(pageTitle);
+        titleSpan.style.fontSize= '30px';
+        titleSpan.style.fontWeight = 'bold';
+        document.body.append(titleSpan);
+        br();
+        
+        var i = 1;
+        problemJSON.holes.forEach(hole=> {
+            let expressionArea=Object.assign(document.createElement("textArea"),{className:"expression", value:hole.expression, style:"width:35rem"});
+            let descArea=Object.assign(document.createElement("input"),{className: "notes",type:"text", value:hole.notes, style:"width:40rem"});
+            document.body.append(expressionArea);  
+            introText(`hole ${i}'s expression: `, expressionArea);      
+            br();
+            document.body.append(descArea);
+            introText(`note: `, descArea);  
+            br();
+            i += 1;
+        });
+        
+        // 3. Added Title Input Field
+        let title = Object.assign(document.createElement("textArea"),{className:"title",innerHTML:problemJSON.title, style:"width:20rem"});
+        document.body.append(title);
+        introText(`title: `, title);  
+        br();
+        
+        let description = Object.assign(document.createElement("textArea"),{className:"description",innerHTML:problemJSON.description, style:"width:20rem"});
+        document.body.append(description);
+        introText(`description: `, description);  
+        
+        document.querySelectorAll("textArea").forEach(resizeInput);
+        document.getElementById("submit").addEventListener('click', ()=>submitCourse(courseID), { once: true });
+    }
 
+    function changeCourse(){
+        let selectElement = document.getElementById("select");
+        let courseID = selectElement.value;
+        console.log(courseID);
+        loadCourse(courseID);
+        // Resets the dropdown back to placeholder after selection
+        selectElement.selectedIndex = 0; 
+    }
 
-}
-function changeCourse(){
-    let courseID = document.getElementById("select").value
-    console.log(courseID);
-    loadCourse(courseID);
+    function submitCourse(courseID){
+        console.log(courseID);
+        let expressions = document.querySelectorAll(".expression");
+        let allNotes =  document.querySelectorAll(".notes");
+        let title =  document.querySelector(".title");
+        let description =  document.querySelector(".description");
+        
+        console.log(expressions);
+        
+        // 4. Added title to the JSON output
+        let problemJSON = {holes:[], description:description.value, title:title.value};
+        
+        expressions.forEach((expression, i)=>{
+            console.log(expression.value);
+            let notes = allNotes[i];
+            problemJSON.holes[i] = {expression:expression.value, notes:notes.value};
+            console.log(problemJSON.holes[i].value);
+        });
+        
+        console.log(problemJSON);
+        JSON_API(problemJSON,courseID,"POST", "admin");
+        alert("You successfully submitted your problem set!");
+        loadCourse(courseID);
+    }
 
-}
-function submitCourse(courseID){
-    console.log(courseID)
-    let expressions = document.querySelectorAll(".expression")
-    let allNotes =  document.querySelectorAll(".notes")
-    let description =  document.querySelector(".description")
-    console.log(expressions)
-    let problemJSON = {holes:[], description:description.value}
-    expressions.forEach((expression, i)=>{
-        console.log(expression.value)
-        let notes = allNotes[i]
-        problemJSON.holes[i] = {expression:expression.value, notes:notes.value}
-        // console.log(problemJSON.holes[i].value)
-    })
-    console.log(problemJSON)
-    JSON_API(problemJSON,courseID,"POST", "admin")
-    alert("You successfully submitted your problem set!");
-    loadCourse(courseID)
-}
-function br(){
-    document.body.append(document.createElement("br"))
-}
+    function br(){
+        document.body.append(document.createElement("br"));
+    }
 
-function introText(txt, el) {
-    var text = document.createTextNode(txt);
-    el.parentNode.insertBefore(text, el);
-}
-
-
-        </script>
+    function introText(txt, el) {
+        var text = document.createTextNode(txt);
+        el.parentNode.insertBefore(text, el);
+    }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>

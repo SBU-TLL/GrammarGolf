@@ -5,6 +5,7 @@ $user="dummyUser";
 $id=$_GET['id'];
 $file="./problem_sets/problem_$id.json";
 $mode= $_GET['mode'] ?? "Guest";
+$idFile="";
 // $file=file_get_contents($fileName);
 // $fileJSON=json_decode($file);
 

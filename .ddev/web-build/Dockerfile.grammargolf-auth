@@ -1,0 +1,19 @@
+# DDEV-only: (1) lazy-session Shibboleth activation for the app, mirroring the
+# server-level config production uses (the repo itself ships no active
+# .htaccess). Lazy = attributes are exported when a login session exists, but
+# anonymous requests (e.g. LTI launch POSTs) still reach PHP — index.php/auth.php
+# then redirect identity-less browsers to /shib/.
+# (2) /shib/ is the production login-trigger app (not in this repo): a stub
+# under .ddev forwards into the real /Shibboleth.sso/Login flow (bundled test IdP).
+RUN printf '%s\n' \
+    '<Directory /var/www/html/public>' \
+    '    AuthType shibboleth' \
+    '    ShibRequestSetting requireSession false' \
+    '    require shibboleth' \
+    '</Directory>' \
+    'Alias /shib /var/www/html/.ddev/shib/shib-stub' \
+    '<Directory /var/www/html/.ddev/shib/shib-stub>' \
+    '    Require all granted' \
+    '    AllowOverride All' \
+    '</Directory>' \
+    > /etc/apache2/conf-enabled/zz-grammargolf-auth.conf

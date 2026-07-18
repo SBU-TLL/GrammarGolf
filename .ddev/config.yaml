@@ -290,3 +290,6 @@ corepack_enable: false
 # information on the commands that can be extended and the tasks you can define
 # for them. Example:
 #hooks:
+
+# No database is used by this app.
+omit_containers: [db]

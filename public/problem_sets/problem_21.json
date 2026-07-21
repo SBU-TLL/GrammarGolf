@@ -25,7 +25,7 @@
       "notes": ""
     },
     {
-      "expression": "(CP (NP Who ^1) (C' (C was ^2) (TP (NP (N Fredo))  (T was ^t2) (VP (V giving) (NP (PossNP's (PossN Michael's#Michael's#Michael's#Michael)) (N cannoli)) (PP (P to) (NP Who ^t1)))))))",
+      "expression": "(CP (NP Who ^1) (C' (C was ^2) (TP (NP (N Fredo))  (T was ^t2) (VP (V giving) (NP (DP (D the)) (N cannoli)) (PP (P to) (NP Who ^t1)))))))",
       "notes": ""
     },
     {

@@ -615,3 +615,15 @@
         #grading {
             display: none;
         }
+
+
+
+#sentenceContainer .labelMenu .labelItem.hide {
+  display: none;
+}
+
+#sentenceContainer .labelMenu {
+ gap: 0.3em;
+}
+
+

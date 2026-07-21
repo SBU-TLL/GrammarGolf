@@ -1,7 +1,7 @@
 {
   "holes": [
     {
-      "expression": "(N (Af anti) (N (V govern) (Af ment)))",
+      "expression": "(N (V (Af dis) (V agree)) (Af ment))",
       "notes": ""
     },
     {
@@ -9,7 +9,7 @@
       "notes": ""
     },
     {
-      "expression": "(N (V (Af dis) (V agree)) (Af ment))",
+      "expression": "(N (Af anti) (N (V depress) (Af ant)))",
       "notes": ""
     },
     {

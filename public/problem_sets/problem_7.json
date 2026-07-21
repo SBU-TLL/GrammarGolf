@@ -25,7 +25,7 @@
       "notes": ""
     },
     {
-      "expression": "(N (N (N ice)*(N cream))*(N (V mak#make) (Af er|r)))",
+      "expression": "(N (N (N ice)*(N cream))*(N (V scoop) (Af er)))",
       "notes": ""
     },
     {

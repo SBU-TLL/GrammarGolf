@@ -5,7 +5,7 @@
       "notes": ""
     },
     {
-      "expression": "(TP (NP (det The) (N vampire)) (T +tns) (VP (V speaks) (NP (N Romanian))))",
+      "expression": "(TP (NP (DP (D The)) (N vampire)) (T was) (VP (V speaking) (NP (N Romanian))))",
       "notes": ""
     },
     {
@@ -17,26 +17,26 @@
       "notes": ""
     },
     {
-      "expression": "(TP (NP (N She)) (T +tns) (VP (V is) (AP (deg so) (A high)) (PP (P above) (NP (N me)))))",
+      "expression": "(TP (NP (N She)) (T is) (VP (V walking) (AP (deg so) (A slow))) ",
       "notes": ""
     },
     {
-      "expression": "(TP (NP (N John)) (T will) (VP (V practice) (NP  (N syntax)) (PP (P for) (NP (det the) (N test))))))",
+      "expression": "(TP (NP (N John)) (T will) (VP (V practice) (NP  (N syntax)) (PP (P for) (NP (DP (D the)) (N test))))))",
       "notes": ""
     },
     {
-      "expression": "(TP (NP (N They)) (T were) (VP (V reading) (NP (PossNP's (PossN Chomsky's#Chomsky#Chomsky)) (N books) (PP (P about) (NP (N syntax))))))",
+      "expression": "(TP (NP (N They)) (T were) (VP (V reading) (NP (DP (NP (N Chomsky)) (D 's)) (N books) (PP (P about) (NP (N syntax))))))",
       "notes": ""
     },
     {
-      "expression": "(TP (NP (PossNP's (PossN Pavlov's#Pavlov#Pavlov)) (N dog)) (T +tns) (VP (V chased) (NP (PossNP's (PossN Schrödinger's#Schrödinger)) (N cat)))))",
+      "expression": "(TP (NP (DP (NP (N Pavlov)) (D 's)) (N dog)) (T is) (VP (V chasing) (NP (DP (NP (N Schrödinger)) (D 's)) (N cat)))))",
       "notes": ""
     },
     {
-      "expression": "(TP (NP (det The) (AP (A Russian)) (N cosmonauts)) (T +tns) (VP (V met) (NP (det the) (AP (A American)) (N astronauts)) (AP (A often)))))",
+      "expression": "(TP (NP (DP (D The)) (AP (A Russian)) (N cosmonauts)) (T are) (VP (V meeting) (NP (DP (D the)) (AP (A American)) (N astronauts)) (AP (A often)))))",
       "notes": ""
     }
   ],
   "description": "Course: Syntax Part 6/8",
- "title": "Course: Syntax Part 6/8"
+  "title": "Course: Syntax Part 6/8"
 }

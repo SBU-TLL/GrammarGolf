@@ -1,2 +1,5 @@
 node_modules/
 data
+# macOS junk
+.DS_Store
+._*

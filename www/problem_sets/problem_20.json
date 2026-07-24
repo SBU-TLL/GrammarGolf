@@ -1,0 +1,42 @@
+{
+  "holes": [
+    {
+      "expression": "(CP (C Have ^1) (TP (NP (DP (D the)) (N musicians)) (T Have ^t1) (VP (V practiced))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Are ^1) (TP (NP  (N you)) (T Are ^t1) (VP (V playing) (PP (P in) (NP (DP (D the)) (N band))))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Would ^1) (TP (NP (DP (D the)) (AP (A talented)) (N cellist)) (T Would ^t1) (VP (V play) (NP (DP (D the)) (N solo)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Have ^1) (TP (NP (DP (D the)) (N musicians)) (T Have ^t1) (VP (V studied) (NP (N Mozart)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Were ^1) (TP (NP (N you)) (T Were ^t1) (VP (V watching) (NP (DP (D the)) (N concert)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Was ^1) (TP (NP  (DP  (NP (N John))(D 's) ) (N friend)) (T Was ^t1) (VP (V driving))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Will ^1) (TP (NP (DP (D the)) (N harpist)) (T Will ^t1) (VP (V tell) (NP (N jokes)) (PP (P after) (NP (DP (D the)) (N show))))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Is ^1) (TP (NP  (N John)) (T Is ^t1) (VP (V playing) (NP (DP (D the)) (N theremin)) (AP (deg very) (A good)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(CP (C Is ^1) (TP (NP (N John)) (T Is ^t1) (VP (V playing) (NP (DP (D the)) (N flute)) (PP (P in) (NP (DP  (NP (N Mary) ) (D 's))  (N wedding))))))",
+      "notes": ""
+    }
+  ],
+  "description": "Course: Syntax Part 7/8",
+  "title": "Course: Syntax Part 7/8"
+}

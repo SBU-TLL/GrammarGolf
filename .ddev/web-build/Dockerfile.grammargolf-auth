@@ -6,7 +6,7 @@
 # (2) /shib/ is the production login-trigger app (not in this repo): a stub
 # under .ddev forwards into the real /Shibboleth.sso/Login flow (bundled test IdP).
 RUN printf '%s\n' \
-    '<Directory /var/www/html/public>' \
+    '<Directory /var/www/html/www>' \
     '    AuthType shibboleth' \
     '    ShibRequestSetting requireSession false' \
     '    require shibboleth' \

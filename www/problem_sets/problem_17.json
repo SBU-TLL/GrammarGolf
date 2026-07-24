@@ -1,0 +1,42 @@
+{
+  "holes": [
+    {
+      "expression": "(S (NP (DP (D The)) (N student)) (VP (V arrived)))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (D Many)) (N tourists)) (VP (V go) (PP (P to) (NP (N Paris)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (N Mary)) (VP (V reads) (PP (P about) (NP (N syntax)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (D The)) (N mathematician)) (VP (V solved) (NP (DP (D the)) (N puzzle)) (PP (P with) (NP (DP (D the)) (N pencil)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (D No)) (adj diligent) (N students)) (VP (V hand) (NP (adj late) (N homework))(PP (P in))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (N Maria)) (D 's)) (N aunt)) (VP (V reads) (NP (DP (D the)) (N book)) (PP (P on) (NP (DP (D the)) (N airplane)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (N I)) (VP (V saw) (NP (DP   (NP (DP (NP (N John)) (D 's)) (N friend)) (D 's))  (N cousin)) (PP (P at) (NP (DP (D the)) (N movies)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (N Miguel)) (VP (V reads) (NP (N books) (PP (P about) (NP (N phonology))))))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (N Elizabeth)) (D 's)) (N uncle)) (VP (V saw) (NP (DP (NP (N Paul) )(D 's)) (N aunt))))",
+      "notes": ""
+    }
+  ],
+  "description": "Course: Syntax Part 4/8",
+  "title": "Course: Syntax Part 4/8"
+}

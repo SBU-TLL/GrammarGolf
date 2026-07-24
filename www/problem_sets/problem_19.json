@@ -1,0 +1,42 @@
+{
+  "holes": [
+    {
+      "expression": "(TP (NP (N Somebody)) (T has) (VP (V baked) (NP (N cookies))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (DP (D The)) (N vampire)) (T was) (VP (V speaking) (NP (N Romanian))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (N Mary)) (T would) (VP (V be) (AP (deg much) (A happier))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (N He)) (T was) (VP (V going) (PP (P on)) (PP (P about) (NP (N nothing)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (N She)) (T is) (VP (V walking) (AP (deg so) (A slow))) ",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (N John)) (T will) (VP (V practice) (NP  (N syntax)) (PP (P for) (NP (DP (D the)) (N test))))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (N They)) (T were) (VP (V reading) (NP (DP (NP (N Chomsky)) (D 's)) (N books) (PP (P about) (NP (N syntax))))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (DP (NP (N Pavlov)) (D 's)) (N dog)) (T is) (VP (V chasing) (NP (DP (NP (N Schrödinger)) (D 's)) (N cat)))))",
+      "notes": ""
+    },
+    {
+      "expression": "(TP (NP (DP (D The)) (AP (A Russian)) (N cosmonauts)) (T are) (VP (V meeting) (NP (DP (D the)) (AP (A American)) (N astronauts)) (AP (A often)))))",
+      "notes": ""
+    }
+  ],
+  "description": "Course: Syntax Part 6/8",
+  "title": "Course: Syntax Part 6/8"
+}

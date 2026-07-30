@@ -4,3 +4,5 @@ data
 .DS_Store
 ._*
 sess_*
+
+.env

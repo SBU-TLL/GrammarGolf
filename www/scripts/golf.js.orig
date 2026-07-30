@@ -106,16 +106,16 @@ function loadMenu() {
     $("#problemSet").append([link])
 })
     
-    let button = `<img src="images/questionmark.svg" alt="Tour" id="tourButton"></img>`
+    let button = `<img src="/images/questionmark.svg" alt="Tour" id="tourButton"></img>`
     $(stage).append(button)
     let problem_id = parseQuery(window.location.search).problem_id
     if (problem_id && problem_id > 10){
-        let toolButton = `<img src="images/toolButton.svg" id="toolButton"></img>`
+        let toolButton = `<img src="/images/toolButton.svg" id="toolButton"></img>`
         $(stage).append(toolButton)
         document.body.addEventListener('click', (event) => {
         if (event.target.id === 'toolButton') {
             document.querySelector("#toolDialog")?.remove();
-            let properties = { div: [`<img src='images/Syntax${problem_id}.png' id='toolPic'/>`]}
+            let properties = { div: [`<img src='/images/Syntax${problem_id}.png' id='toolPic'/>`]}
             let dialog = draggableDialog(properties, "toolDialog")
             console.log(problem_id, properties)
             document.querySelector("#sentenceContainer").append(dialog);
@@ -211,10 +211,10 @@ function loadSentence(sentenceID) {
 function intro() {
     let problemJSON = globals.problemJSON;
     var intro = introJs();
-    let dragVideo= "<video src='images/dragVideo.mp4'  autoplay class='introVideo' />"
-    let parseVideo= "<video src='images/parseVideo.mp4'  autoplay class='introVideo' />"
-    let labelInput = "<video src='images/labelInput.mp4'  autoplay class='introVideo' />"
-    let introImage = "<img src='images/intro_final.png'  autoplay class='introPhoto' />"
+    let dragVideo= "<video src='/images/dragVideo.mp4'  autoplay class='introVideo' />"
+    let parseVideo= "<video src='/images/parseVideo.mp4'  autoplay class='introVideo' />"
+    let labelInput = "<video src='/images/labelInput.mp4'  autoplay class='introVideo' />"
+    let introImage = "<img src='/images/intro_final.png'  autoplay class='introPhoto' />"
     intro.setOptions({
         tooltipClass: 'customTooltip',
         steps: [{
@@ -2018,20 +2018,20 @@ function getProgressSignal(strokes, weightedPar, minStep, final=false) {
         let {allColor, countColor} = colorChecker("green")
         console.log(allColor, countColor)
         if (allColor=="true") {
-            return {"flagColor":"green", "alarm":{ div: ["<img src='images/completed_final.png' id='finishMeme'/>"]}}
+            return {"flagColor":"green", "alarm":{ div: ["<img src='/images/completed_final.png' id='finishMeme'/>"]}}
         }}
     if (strokes == minStep) {
-        let returnItem =  {"flagColor":"green", "alarm":{ div: ["<video src='images/golf_perfect_final.mp4' autoplay id='finishMeme' />"]}}
+        let returnItem =  {"flagColor":"green", "alarm":{ div: ["<video src='/images/golf_perfect_final.mp4' autoplay id='finishMeme' />"]}}
         if (final) {returnItem = nextButton(returnItem)}
         return returnItem
     }
     else if (strokes > weightedPar) {
-        let returnItem = {"flagColor":"red", "alarm": { div: ["<video src='images/redFlag.mp4' autoplay id='finishMeme' />"]}}
+        let returnItem = {"flagColor":"red", "alarm": { div: ["<video src='/images/redFlag.mp4' autoplay id='finishMeme' />"]}}
         returnItem = tryAgainButton(returnItem)
         return returnItem
     }
     else if (strokes <= weightedPar) {
-        let returnItem =  {"flagColor":"yellow", "alarm":{ div: ["<video src='images/greenFlag.mp4' autoplay id='finishMeme' />"]}}
+        let returnItem =  {"flagColor":"yellow", "alarm":{ div: ["<video src='/images/greenFlag.mp4' autoplay id='finishMeme' />"]}}
         returnItem = tryAgainButton(returnItem)
         return returnItem
     }

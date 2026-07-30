@@ -19,7 +19,7 @@ print_r($selectItems);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="scripts/JSON_API.js"></script>
+    <script src="/scripts/JSON_API.js"></script>
     <script> 
     document.addEventListener('DOMContentLoaded', ()=>loadCourse(), { once: true });
 

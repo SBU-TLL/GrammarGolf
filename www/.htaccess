@@ -1,0 +1,4 @@
+# Every version of the app is served by a PHP entry point (public/, brightspace/,
+# admin/). Apache's stock DirectoryIndex prefers index.html, which would bypass
+# those entry points — and with them the authentication — so prefer index.php.
+DirectoryIndex index.php index.html

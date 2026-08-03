@@ -1,13 +1,17 @@
 <?php
-//  exit;
-include("auth.php");
-$problem_set=glob("./problem_sets/". "*");
+// Course editor — admin only. The guard requires a Shibboleth login AND
+// membership in GRAMMARGOLF_ADMINS (root .env); everyone else gets 403.
+require_once dirname(__DIR__, 2) . '/lib/gg_auth.php';
+gg_require_admin();
+
+// problem_sets/ lives at the web root, one level up from this admin/ directory.
+$problem_set=glob(__DIR__ . "/../problem_sets/" . "*");
 $title = array();
 $selectItems= array();
 foreach ($problem_set as $key => $value) {
     $JSON = json_decode(file_get_contents($value));
     // print_r($value);
-    $jsonID=preg_match('/\.\/problem_sets[^_]*_([^\.]*)/',$value, $match);
+    $jsonID=preg_match('/problem_sets[^_]*_([^\.]*)/',$value, $match);
     $selectItems[(int)$match[1]]= $JSON->title;
     //$title[$key]=$JSON->title;
  

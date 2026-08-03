@@ -1,10 +1,18 @@
 <?php
+// Shared problem-set endpoint for all three versions (public / brightspace /
+// admin). Reads are open; per-user saves need a session; writing the MASTER
+// problem set ("admin" mode) additionally requires admin membership.
+require_once dirname(__DIR__) . '/lib/gg_auth.php';
 session_start();
-#include("auth.php");
 $user="dummyUser";
 $id=$_GET['id'];
-$file="./problem_sets/problem_$id.json";
-$mode= $_GET['mode'] ?? "Guest";
+$file=__DIR__ . "/problem_sets/problem_$id.json";
+
+// SECURITY: mode=admin arrives from the query string, i.e. from the client, and
+// it decides whether a POST overwrites the shared master problem set. Honour it
+// only for real admins (roster in the root .env); for anyone else fall back to
+// the normal per-user mode, so a student cannot rewrite course content.
+$mode = ($_GET['mode'] ?? "Guest") === "admin" && gg_is_admin() ? "admin" : "Guest";
 // Default so the guest path's file_exists($idFile) has a defined value
 // (guests have no session, so $idFile is otherwise never set).
 $idFile="";
@@ -13,7 +21,8 @@ $idFile="";
 
 if(isset($_SESSION['mail'])){
     list($user,$other)=explode("@",$_SESSION['mail']);
-    $idFile=  "../data/$user/$id.json";   
+    // Per-user saves live in data/ at the repo root, outside the web root.
+    $idFile= dirname(__DIR__) . "/data/$user/$id.json";
 }
 
   

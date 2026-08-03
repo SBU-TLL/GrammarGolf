@@ -17,12 +17,16 @@ function JSON_API(json = {}, id = 7, method = "GET", mode = "user") {
         query = "&mode=admin"
     }
 
-    let URL = `problem_set/?problem_id=${problem_id}${query}`
-    if (window.location.href.includes("github.io") || window.location.href.includes("127.0")) {
-        URL = `problem_sets/problem_${problem_id}.json${query}`
-    }
-    if (window.location.href.includes("stonybrook")||window.location.href.includes("ddev")) {
-        URL = `problem_set.php?id=${problem_id}${query}`
+    // Which endpoint to talk to is decided by the page, not by sniffing the
+    // hostname: each version sets window.GG_API (see includes/game_view.php).
+    // public/ points at its own read-only endpoint; brightspace/ and admin/ use
+    // the session-aware one, which is also the default for the course editor.
+    // Paths are absolute because the pages live in subdirectories.
+    let api = (typeof window !== "undefined" && window.GG_API) || "/problem_set.php"
+    let URL = `${api}?id=${problem_id}${query}`
+    if (window.location.href.includes("github.io")) {
+        // Static hosting (GitHub Pages): no PHP, read the JSON directly.
+        URL = `/problem_sets/problem_${problem_id}.json${query}`
     }
     param.unshift(URL);
     // console.log(param)

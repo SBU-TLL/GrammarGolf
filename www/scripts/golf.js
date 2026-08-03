@@ -73,7 +73,7 @@ function loadMenu() {
         //<br/> par: ${par}
         let problemListItem = `<div class=problemInList> 
         <svg style="width:3.5rem;" viewBox="0 0 208 334">
-        <use xlink:href="images/flag.svg#flag" class="flag" id="${i}" style="--color_fill: ${flagColor};"></use>
+        <use xlink:href="/images/flag.svg#flag" class="flag" id="${i}" style="--color_fill: ${flagColor};"></use>
         </svg>
         <div class="hole-text">  hole ${i + 1} </div>
         </div>`

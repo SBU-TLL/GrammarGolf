@@ -1,0 +1,42 @@
+{
+  "holes": [
+    {
+      "expression": "(S (NP (DP (NP (N John)) (D 's) )(N friend)) (VP drew syntax trees))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (N Mary)) (D 's)) (N cousin)) (VP studies linguistics at Stony Brook))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (DP (D The)) (N professor) )(D 's)) (N students)) (VP speak Klingon))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (N Chomsky)) (D 's)) (N classes)) (VP taught students about politics))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (DP (D The)) (N student)) (D 's)) (adj beautiful) (N caligraphy)) (VP impressed the teacher))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (DP (D The)) (adj Spanish)  (N king)) (D 's))  (N successor)) (VP practices Basque))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (DP (D That)) (N student)) (D 's))  (N doll) (PP (P from) (NP (N Russia)))) (VP is a matryoshka doll))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP  (D A)) (N friend) (PP (P of) (NP (DP (NP  (N Sue)) (D 's)) (N sister)))) (VP starred in My Fair Lady))",
+      "notes": ""
+    },
+    {
+      "expression": "(S (NP (DP (NP (DP (D My)) (N friend)) (D 's)) (adj former) (N roommate)) (VP reads Esperanto))",
+      "notes": ""
+    }
+  ],
+  "description": "Course: Syntax Part 3/8",
+  "title": "Course: Syntax Part 3/8"
+}

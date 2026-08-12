@@ -9,6 +9,8 @@
  * Anonymous browsers are sent to the Shibboleth login. LTI launch POSTs carry
  * their own identity, so they are handled first and never redirected.
  */
+require_once dirname(__DIR__, 2) . '/lib/gg_auth.php';
+
 session_start();
 
 $gg_head_extra = '';
@@ -28,17 +30,18 @@ if (array_key_exists('lis_person_name_given', $_POST)) {
     <script>var ses = $JSON_POST;</script>
 
 EOT;
-} elseif (isset($_SERVER['sn'])) {
+} elseif (isset($_SERVER['cn']) || isset($_SERVER['sn'])) {
     // --- Shibboleth session (mod_shib populated $_SERVER) -------------------
+    // Keyed on cn OR sn, not sn alone: an IdP that releases the netID but not
+    // the surname would otherwise match neither branch, leaving the user logged
+    // in but treated as a guest — the game would load and silently never save.
     $_SESSION['mail']      = $_SERVER['mail'] ?? null;
     $_SESSION['givenName'] = $_SERVER['givenName'] ?? null;
     $_SESSION['nickname']  = $_SERVER['nickname'] ?? null;
-    $_SESSION['sn']        = $_SERVER['sn'];
-} elseif (!isset($_SERVER['cn'])) {
+    $_SESSION['sn']        = $_SERVER['sn'] ?? null;
+} else {
     // --- No identity at all: send the browser to log in ---------------------
-    $target = 'https://' . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/');
-    header('Location: /shib/?shibtarget=' . rawurlencode($target));
-    exit;
+    gg_redirect_to_login();
 }
 
 require __DIR__ . '/../includes/game_view.php';

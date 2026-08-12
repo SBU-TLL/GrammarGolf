@@ -31,6 +31,38 @@ function gg_netid(): ?string
     return null;
 }
 
+/**
+ * URL that starts a Shibboleth login and comes back to the current page.
+ *
+ * This points at the SP's own session initiator, which mod_shib serves at
+ * /Shibboleth.sso/Login on whatever host the app runs on.
+ *
+ * It used to point at "/shib/", a separate login-trigger app that exists on the
+ * old shared web server but is not deployed alongside this one. In production
+ * that URL 404s, which made every authenticated version of the game
+ * unreachable while /public/ — the one version that never redirects — worked.
+ *
+ * The target is deliberately RELATIVE. mod_shib resolves it against the SP's
+ * own host, so neither a spoofed Host header nor a crafted request line can
+ * turn this into an open redirect.
+ */
+function gg_login_url(?string $target = null): string
+{
+    $target = $target ?? ($_SERVER['REQUEST_URI'] ?? '/');
+    // Same-site paths only: reject absolute URLs and protocol-relative "//host".
+    if ($target === '' || $target[0] !== '/' || str_starts_with($target, '//')) {
+        $target = '/';
+    }
+    return '/Shibboleth.sso/Login?target=' . rawurlencode($target);
+}
+
+/** Send an unauthenticated browser to log in, then return to this page. */
+function gg_redirect_to_login(): void
+{
+    header('Location: ' . gg_login_url(), true, 302);
+    exit;
+}
+
 /** Admin roster from the root .env: GRAMMARGOLF_ADMINS="netid1,netid2". */
 function gg_admins(): array
 {
@@ -57,9 +89,7 @@ function gg_require_admin(): void
     $netid = gg_netid();
 
     if ($netid === null) {
-        $target = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . ($_SERVER['REQUEST_URI'] ?? '/');
-        header('Location: /shib/?shibtarget=' . rawurlencode($target));
-        exit;
+        gg_redirect_to_login();
     }
 
     if (!gg_is_admin()) {

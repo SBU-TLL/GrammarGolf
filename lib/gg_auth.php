@@ -32,19 +32,52 @@ function gg_netid(): ?string
 }
 
 /**
- * URL that starts a Shibboleth login and comes back to the current page.
+ * Base URL of the Shibboleth handler that starts a login.
  *
- * This points at the SP's own session initiator, which mod_shib serves at
- * /Shibboleth.sso/Login on whatever host the app runs on.
+ * Default "/Shibboleth.sso" = the SP runs on this host (how DDEV is set up).
+ *
+ * Production is different: the TLL runs a CENTRAL SP. One entityID
+ * (auth.tll.stonybrook.edu) owns the only AssertionConsumerService registered
+ * with the university IdP, session cookies are scoped to .tll.stonybrook.edu so
+ * every *.tll app shares the session, and each app host is a RequestMap entry
+ * rather than an SP in its own right. Logins there must START at the central
+ * handler. Asking the local host to start one makes its SP mint an AuthnRequest
+ * naming an ACS URL the IdP holds no metadata for, and the IdP rejects it with
+ * HTTP 400 ("unable to identify a compatible way to respond").
+ *
+ * Set SHIB_HANDLER_URL in the root .env to the central handler in production.
+ */
+function gg_shib_handler(): string
+{
+    $handler = trim((string) getenv('SHIB_HANDLER_URL'));
+    return $handler !== '' ? rtrim($handler, '/') : '/Shibboleth.sso';
+}
+
+/**
+ * This app's own canonical base URL, e.g. https://grammargolf.tll.stonybrook.edu
+ *
+ * Prefer GRAMMARGOLF_BASE_URL from .env over the Host header, which the client
+ * controls: when the login is handed to a central SP on another host, the
+ * post-login target is where that SP sends the browser, so a spoofed Host would
+ * otherwise be an open redirect.
+ */
+function gg_base_url(): string
+{
+    $base = trim((string) getenv('GRAMMARGOLF_BASE_URL'));
+    if ($base !== '') {
+        return rtrim($base, '/');
+    }
+    $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
+
+/**
+ * URL that starts a Shibboleth login and comes back to the current page.
  *
  * It used to point at "/shib/", a separate login-trigger app that exists on the
  * old shared web server but is not deployed alongside this one. In production
  * that URL 404s, which made every authenticated version of the game
  * unreachable while /public/ — the one version that never redirects — worked.
- *
- * The target is deliberately RELATIVE. mod_shib resolves it against the SP's
- * own host, so neither a spoofed Host header nor a crafted request line can
- * turn this into an open redirect.
  */
 function gg_login_url(?string $target = null): string
 {
@@ -53,7 +86,14 @@ function gg_login_url(?string $target = null): string
     if ($target === '' || $target[0] !== '/' || str_starts_with($target, '//')) {
         $target = '/';
     }
-    return '/Shibboleth.sso/Login?target=' . rawurlencode($target);
+
+    $handler = gg_shib_handler();
+    if ($handler[0] !== '/') {
+        // Central SP on another host: a relative target would resolve against
+        // THAT host, so send it back here explicitly.
+        $target = gg_base_url() . $target;
+    }
+    return $handler . '/Login?target=' . rawurlencode($target);
 }
 
 /** Send an unauthenticated browser to log in, then return to this page. */

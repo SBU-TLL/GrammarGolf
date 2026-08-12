@@ -30,11 +30,13 @@ if (array_key_exists('lis_person_name_given', $_POST)) {
     <script>var ses = $JSON_POST;</script>
 
 EOT;
-} elseif (isset($_SERVER['cn']) || isset($_SERVER['sn'])) {
+} elseif (gg_shib_session_active()) {
     // --- Shibboleth session (mod_shib populated $_SERVER) -------------------
-    // Keyed on cn OR sn, not sn alone: an IdP that releases the netID but not
-    // the surname would otherwise match neither branch, leaving the user logged
-    // in but treated as a guest — the game would load and silently never save.
+    // Keyed on "any Shibboleth variable arrived", not on one attribute: an IdP
+    // releasing the netID but not the surname would otherwise match no branch,
+    // leaving the user logged in but treated as a guest — the game would load
+    // and silently never save.
+    $_SESSION['cn']        = gg_netid();
     $_SESSION['mail']      = $_SERVER['mail'] ?? null;
     $_SESSION['givenName'] = $_SERVER['givenName'] ?? null;
     $_SESSION['nickname']  = $_SERVER['nickname'] ?? null;

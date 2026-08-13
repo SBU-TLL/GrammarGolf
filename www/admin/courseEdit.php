@@ -114,37 +114,38 @@ ksort($selectItems);
      loadCourse(courseID);
      selectElement.selectedIndex = 0;
  }
- function submitCourse(courseID){
-     console.log(courseID)
-     let expressions = document.querySelectorAll(".expression")
-     let allNotes =  document.querySelectorAll(".notes")
-     let title =  document.querySelector(".title")
-     let description=  document.querySelector(".description")
-     console.log(expressions)
-     let problemJSON = {holes:[], description:description.value, title:title.value}
-     expressions.forEach((expression, i)=>{
-         console.log(expression.value)
-         let notes = allNotes[i]
-         problemJSON.holes[i] = {expression:expression.value, notes:notes.value}
-          console.log(problemJSON.holes[i].value)
-     })
-     // Wait for the save before claiming it worked, and reload only afterwards.
-     // This used to alert "successfully submitted" the moment the request was
-     // fired — so a rejected or failed save still looked like it had worked —
-     // and the reload raced the POST, sometimes redisplaying the old content.
-     JSON_API(problemJSON, courseID, "POST", "admin")
-         .then(() => {
-             alert(`Problem set ${courseID} saved.`);
-             loadCourse(courseID);
-         })
-         .catch(() => {
-             alert(`Problem set ${courseID} was NOT saved.\n\n`
-                 + `The server rejected the write. Common causes: your netID is not in\n`
-                 + `GRAMMARGOLF_ADMINS, or problem_sets/ is not writable by the web server.\n`
-                 + `See the browser console and the server error log for the reason.`);
-             loadCourse(courseID);
-         });
- }
+function submitCourse(courseID) {
+    console.log(courseID);
+    let expressions = document.querySelectorAll(".expression");
+    let allNotes = document.querySelectorAll(".notes");
+    let title = document.querySelector(".title");
+    let description = document.querySelector(".description");
+
+    let problemJSON = { holes: [], description: description.value, title: title.value };
+    expressions.forEach((expression, i) => {
+        let notes = allNotes[i];
+        problemJSON.holes[i] = { expression: expression.value, notes: notes.value };
+    });
+
+    console.log("Submitting payload:", problemJSON);
+
+    // Wait for the server response BEFORE alerting and reloading. Alerting when
+    // the request was merely *sent* made a rejected save look successful, and
+    // the reload raced the POST. On failure do NOT reload: that would throw away
+    // whatever was just typed.
+    JSON_API(problemJSON, courseID, "POST", "admin")
+        .then(() => {
+            alert(`Problem set ${courseID} saved.`);
+            loadCourse(courseID);
+        })
+        .catch((err) => {
+            console.error("Save failed:", err);
+            alert(`Problem set ${courseID} was NOT saved — your edits are still on screen.\n\n`
+                + `Common causes: your netID is not in GRAMMARGOLF_ADMINS, or problem_sets/\n`
+                + `is not writable by the web server. The server's reason is in the browser\n`
+                + `console and the server error log.`);
+        });
+}
  function br(){
      document.body.append(document.createElement("br"))
  }

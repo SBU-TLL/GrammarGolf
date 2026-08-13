@@ -36,22 +36,61 @@ if ($netid !== null) {
 }
 
 
-if(isset($_POST["json"]) && $idFile !== "" ){
+/** Path relative to the app root, so errors are actionable without leaking layout. */
+function gg_relpath(string $path): string
+{
+    $root = dirname(__DIR__) . '/';
+    return str_starts_with($path, $root) ? substr($path, strlen($root)) : basename($path);
+}
+
+/** Report a save that did not happen. Silence here looks exactly like success. */
+function gg_save_failed(int $status, string $message): void
+{
+    http_response_code($status);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit($message);
+}
+
+if(isset($_POST["json"])){
+
+    // Every failure below used to be silent: the response echoed the submitted
+    // JSON back whatever happened, so the browser — and the user — saw a
+    // successful save even when nothing reached the disk.
+
+    if (($_GET['mode'] ?? '') === "admin" && $mode !== "admin") {
+        gg_save_failed(403,
+            "Not saved. '" . (gg_netid() ?? 'nobody') . "' is not a GrammarGolf administrator,\n"
+          . "so the shared problem set was left unchanged.\n"
+          . "Add the netID to GRAMMARGOLF_ADMINS in the project's root .env file.\n");
+    }
+    if ($idFile === "") {
+        gg_save_failed(403,
+            "Not saved. This request carries no identity, so there is no user to save for.\n");
+    }
 
     // Ensure the per-user data directory exists BEFORE writing. Previously the
     // mkdir ran AFTER the file_put_contents, so a new user's first save wrote
     // into a non-existent directory (silently failed) until the dir happened to
     // exist on a later save.
     $idDir = dirname($idFile);
-    if(!is_dir($idDir)){
-        mkdir($idDir, 0755, true);
+    if (!is_dir($idDir) && !@mkdir($idDir, 0755, true) && !is_dir($idDir)) {
+        gg_save_failed(500,
+            "Not saved. The server could not create:\n  " . gg_relpath($idDir) . "\n\n"
+          . "Its parent directory must be writable by the web server user.\n");
     }
 
-    if ($mode=="admin") {
-     file_put_contents($idFile,$_POST["json"]);
-     file_put_contents($file,$_POST["json"]);
-    } else {
-      file_put_contents($idFile,$_POST["json"]);
+    // Admin mode also overwrites the shared master copy inside the web root.
+    $targets = $mode == "admin" ? [$idFile, $file] : [$idFile];
+    $failed = [];
+    foreach ($targets as $path) {
+        if (@file_put_contents($path, $_POST["json"]) === false) {
+            $failed[] = gg_relpath($path);
+        }
+    }
+    if ($failed) {
+        gg_save_failed(500,
+            "Not saved. The server could not write:\n  " . implode("\n  ", $failed) . "\n\n"
+          . "These paths must be writable by the web server user.\n");
     }
 
    print($_POST["json"]);

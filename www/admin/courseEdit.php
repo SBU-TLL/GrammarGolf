@@ -105,25 +105,32 @@ print_r($selectItems);
      loadCourse(courseID);
      selectElement.selectedIndex = 0;
  }
- function submitCourse(courseID){
-     console.log(courseID)
-     let expressions = document.querySelectorAll(".expression")
-     let allNotes =  document.querySelectorAll(".notes")
-     let title =  document.querySelector(".title")
-     let description=  document.querySelector(".description")
-     console.log(expressions)
-     let problemJSON = {holes:[], description:description.value, title:title.value}
-     expressions.forEach((expression, i)=>{
-         console.log(expression.value)
-         let notes = allNotes[i]
-         problemJSON.holes[i] = {expression:expression.value, notes:notes.value}
-          console.log(problemJSON.holes[i].value)
-     })
-     console.log(problemJSON)
-     JSON_API(problemJSON,courseID,"POST", "admin")
-     alert("You successfully submitted your problem set!");
-     loadCourse(courseID)
- }
+function submitCourse(courseID) {
+    console.log(courseID);
+    let expressions = document.querySelectorAll(".expression");
+    let allNotes = document.querySelectorAll(".notes");
+    let title = document.querySelector(".title");
+    let description = document.querySelector(".description");
+
+    let problemJSON = { holes: [], description: description.value, title: title.value };
+    expressions.forEach((expression, i) => {
+        let notes = allNotes[i];
+        problemJSON.holes[i] = { expression: expression.value, notes: notes.value };
+    });
+
+    console.log("Submitting payload:", problemJSON);
+
+    // Wait for the server response BEFORE alerting and reloading!
+    JSON_API(problemJSON, courseID, "POST", "admin")
+        .then(() => {
+            alert("You successfully submitted your problem set!");
+            loadCourse(courseID);
+        })
+        .catch((err) => {
+            console.error("Save failed:", err);
+            alert("Error: Server failed to save changes.");
+        });
+}
  function br(){
      document.body.append(document.createElement("br"))
  }

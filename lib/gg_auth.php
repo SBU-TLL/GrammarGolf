@@ -28,11 +28,41 @@ function gg_unscope(string $value): string
     return explode('@', $value)[0];
 }
 
+/**
+ * Every environment spelling of one attribute.
+ *
+ * Apache re-prefixes environment variables with REDIRECT_ each time a request
+ * is re-dispatched internally — and reaching "/brightspace/" serves
+ * "/brightspace/index.php" through exactly such a DirectoryIndex hop, so
+ * mod_shib's "cn" can arrive as "REDIRECT_cn". Two levels covers a redirect
+ * chained after a rewrite.
+ *
+ * These are set by Apache itself and cannot be injected by a client, so every
+ * spelling is equally trustworthy. (Request headers are deliberately NOT read:
+ * mod_shib strips client-supplied copies only on requests it handles, so on any
+ * path it does not handle a forged "Cn:" header would be believed.)
+ */
+function gg_env_keys(string $attr): array
+{
+    return [$attr, 'REDIRECT_' . $attr, 'REDIRECT_REDIRECT_' . $attr];
+}
+
+/** One Shibboleth attribute, however this deployment exports it. */
+function gg_shib_attr(string $attr): ?string
+{
+    foreach (gg_env_keys($attr) as $key) {
+        if (!empty($_SERVER[$key])) {
+            return (string) $_SERVER[$key];
+        }
+    }
+    return null;
+}
+
 /** True when mod_shib has put a Shibboleth session on this request. */
 function gg_shib_session_active(): bool
 {
     foreach (array_merge(GG_SHIB_MARKERS, GG_SHIB_NETID_ATTRS, GG_SHIB_OTHER_ATTRS) as $key) {
-        if (!empty($_SERVER[$key])) {
+        if (gg_shib_attr($key) !== null) {
             return true;
         }
     }
@@ -47,15 +77,16 @@ function gg_netid(): ?string
     }
     // Shibboleth: cn is the netID at SBU; accept the other common spellings too.
     foreach (GG_SHIB_NETID_ATTRS as $key) {
-        if (!empty($_SERVER[$key])) {
-            return gg_unscope($_SERVER[$key]);
+        $value = gg_shib_attr($key);
+        if ($value !== null) {
+            return gg_unscope($value);
         }
     }
     if (!empty($_SESSION['cn'])) {
         return $_SESSION['cn'];
     }
     // LTI/session fallback: derive from mail.
-    foreach ([$_SERVER['mail'] ?? null, $_SESSION['mail'] ?? null] as $mail) {
+    foreach ([gg_shib_attr('mail'), $_SESSION['mail'] ?? null] as $mail) {
         if (!empty($mail)) {
             return gg_unscope($mail);
         }
@@ -137,10 +168,30 @@ function gg_login_url(?string $target = null): string
  */
 function gg_auth_dead_end(): void
 {
-    $present = [];
-    foreach (array_merge(GG_SHIB_MARKERS, GG_SHIB_NETID_ATTRS, GG_SHIB_OTHER_ATTRS) as $key) {
+    $all = array_merge(GG_SHIB_MARKERS, GG_SHIB_NETID_ATTRS, GG_SHIB_OTHER_ATTRS);
+
+    $env = $redir = $hdr = [];
+    foreach ($all as $key) {
         if (!empty($_SERVER[$key])) {
-            $present[] = $key;
+            $env[] = $key;
+        }
+        foreach (array_slice(gg_env_keys($key), 1) as $prefixed) {
+            if (!empty($_SERVER[$prefixed])) {
+                $redir[] = $prefixed;
+            }
+        }
+        // Reported but never trusted — see gg_env_keys(). Worth naming, because
+        // "environment empty but headers full" means the SP is running with
+        // ShibUseHeaders On and the server config needs changing, not the app.
+        if (!empty($_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))])) {
+            $hdr[] = $key;
+        }
+    }
+    // Anything else that smells like Shibboleth, in case the spelling differs.
+    $other = [];
+    foreach (array_keys($_SERVER) as $key) {
+        if (preg_match('/shib|assurance|affiliation|persistent.?id|targeted.?id/i', (string) $key)) {
+            $other[] = $key;
         }
     }
 
@@ -149,16 +200,29 @@ function gg_auth_dead_end(): void
     echo "Signed in, but this application received no identity.\n";
     echo "Stopping here: redirecting again would loop between the app and the "
        . "login service.\n\n";
-    echo 'Shibboleth variables present: ' . ($present ? implode(', ', $present) : '(none)') . "\n\n";
+    echo 'As environment variables : ' . ($env ? implode(', ', $env) : '(none)') . "\n";
+    echo 'After internal redirect  : ' . ($redir ? implode(', ', $redir) : '(none)') . "\n";
+    echo 'As request headers       : ' . ($hdr ? implode(', ', $hdr) : '(none)') . "\n";
+    echo 'Other Shibboleth-ish keys: ' . ($other ? implode(', ', $other) : '(none)') . "\n\n";
 
-    if (!$present) {
-        echo "None at all means this virtual host is not exporting a Shibboleth\n";
-        echo "session. Its <Directory> / RequestMap entry needs:\n\n";
+    if ($hdr && !$env && !$redir) {
+        echo "Shibboleth IS working, but the SP is exporting through request headers\n";
+        echo "(ShibUseHeaders On). This app reads environment variables, because a\n";
+        echo "header can be forged on any path mod_shib does not filter. Remove\n";
+        echo "ShibUseHeaders from the vhost so attributes arrive as env vars.\n";
+    } elseif (!$env && !$redir && !$hdr && !$other) {
+        echo "Nothing at all arrived, by either route. mod_shib can be installed and\n";
+        echo "the SP can be working while THIS virtual host still exports nothing —\n";
+        echo "attributes are only populated for requests mod_shib is told to handle.\n\n";
+        echo "In a RequestMap setup the host entry needs an authType, e.g.:\n\n";
+        echo "    <Host name=\"" . htmlspecialchars((string) ($_SERVER['HTTP_HOST'] ?? 'this-host'), ENT_NOQUOTES) . "\"\n";
+        echo "          authType=\"shibboleth\" requireSession=\"false\"/>\n\n";
+        echo "or, as Apache directives on the docroot:\n\n";
         echo "    AuthType shibboleth\n";
         echo "    ShibRequestSetting requireSession false\n";
         echo "    require shibboleth\n\n";
-        echo "requireSession must stay false so /public/ and LTI launch POSTs\n";
-        echo "still reach the app without a login.\n";
+        echo "requireSession must stay false so /public/ and LTI launch POSTs still\n";
+        echo "reach the app without a login.\n";
     } else {
         echo "A session exists, but none of the attributes carry a netID. The app\n";
         echo 'looks for: ' . implode(', ', GG_SHIB_NETID_ATTRS) . ", then mail.\n";

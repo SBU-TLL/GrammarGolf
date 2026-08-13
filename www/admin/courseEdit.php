@@ -13,12 +13,9 @@ foreach ($problem_set as $key => $value) {
     // print_r($value);
     $jsonID=preg_match('/problem_sets[^_]*_([^\.]*)/',$value, $match);
     $selectItems[(int)$match[1]]= $JSON->title;
-    //$title[$key]=$JSON->title;
- 
-    //  print_r($JSON->title);
-    // echo "Key: " . $key . ", Value: " .     $title[$key]. "<br>";
 }
-print_r($selectItems);
+// Numeric order, so the dropdown reads 1,2,3… rather than glob's 1,14,15,2,20.
+ksort($selectItems);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +55,10 @@ print_r($selectItems);
     console.log("Title:", courseTitle);
     // let courseID_select=courseCount[i]?.split(".json")[0].split("_").pop()
     // let courseString=`course_${courseID}`;
-    let option = Object.assign(document.createElement("option"),{innerHTML:`${courseTitle}`, value:`${courseID}`})
+    // Show the id alongside the title: it is what identifies the problem set
+    // everywhere else — the file (problem_sets/problem_<id>.json) and the URL
+    // players use (/public/?problem_id=<id>).
+    let option = Object.assign(document.createElement("option"),{innerHTML:`${courseID} — ${courseTitle}`, value:`${courseID}`})
      select.appendChild(option);
  }
  document.body.append(select);
@@ -73,6 +73,15 @@ print_r($selectItems);
      titleSpan.style.fontSize= '30px'
      titleSpan.style.fontWeight = 'bold';
      document.body.append(titleSpan);
+     br()
+     // Which problem set is on screen, and how to reach it as a player.
+     const idLine = document.createElement('div');
+     idLine.style.margin = '4px 0 12px';
+     idLine.innerHTML = `problem set ID <strong>${courseID}</strong>`
+         + ` &nbsp;·&nbsp; file <code>problem_sets/problem_${courseID}.json</code>`
+         + ` &nbsp;·&nbsp; play: <a href="/public/?problem_id=${courseID}" target="_blank">/public/?problem_id=${courseID}</a>`
+         + ` | <a href="/brightspace/?problem_id=${courseID}" target="_blank">/brightspace/?problem_id=${courseID}</a>`;
+     document.body.append(idLine);
      br()
      var i = 1;
      problemJSON.holes.forEach(hole=> {
@@ -119,10 +128,22 @@ print_r($selectItems);
          problemJSON.holes[i] = {expression:expression.value, notes:notes.value}
           console.log(problemJSON.holes[i].value)
      })
-     console.log(problemJSON)
-     JSON_API(problemJSON,courseID,"POST", "admin")
-     alert("You successfully submitted your problem set!");
-     loadCourse(courseID)
+     // Wait for the save before claiming it worked, and reload only afterwards.
+     // This used to alert "successfully submitted" the moment the request was
+     // fired — so a rejected or failed save still looked like it had worked —
+     // and the reload raced the POST, sometimes redisplaying the old content.
+     JSON_API(problemJSON, courseID, "POST", "admin")
+         .then(() => {
+             alert(`Problem set ${courseID} saved.`);
+             loadCourse(courseID);
+         })
+         .catch(() => {
+             alert(`Problem set ${courseID} was NOT saved.\n\n`
+                 + `The server rejected the write. Common causes: your netID is not in\n`
+                 + `GRAMMARGOLF_ADMINS, or problem_sets/ is not writable by the web server.\n`
+                 + `See the browser console and the server error log for the reason.`);
+             loadCourse(courseID);
+         });
  }
  function br(){
      document.body.append(document.createElement("br"))
@@ -137,7 +158,7 @@ print_r($selectItems);
          </script>
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Document</title>
+     <title>Grammar Golf — Course Editor</title>
  </head>
  <body>
     

@@ -96,13 +96,23 @@ if(isset($_POST["json"])){
    print($_POST["json"]);
 }
 else{
-  
-  if(file_exists($idFile) && $mode!="admin"){
+
+  if($idFile !== "" && file_exists($idFile) && $mode!="admin"){
     $file=$idFile;
   }
 
+  // Ids travel in URLs (/public/?problem_id=N) and the numbering has gaps, so a
+  // wrong one is easy to land on. Say so plainly. This used to return HTTP 200
+  // with a PHP warning quoting the absolute server path, which the client could
+  // not parse — the game just broke.
+  if(!file_exists($file)){
+      http_response_code(404);
+      header('Content-Type: text/plain; charset=utf-8');
+      exit("No problem set with id '$id'.\n");
+  }
+
     $json=file_get_contents($file);
-    
+
     print($json);
 
 }

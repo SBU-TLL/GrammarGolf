@@ -160,76 +160,46 @@ function gg_login_url(?string $target = null): string
 }
 
 /**
- * Explain why login produced no identity, instead of bouncing forever.
+ * Stop, instead of bouncing between the app and the login service forever.
  *
- * Reached only when the browser has already been through the login service and
- * come back with nothing usable. Reports which Shibboleth variables arrived --
- * names only, never values -- because that single fact separates the two causes.
+ * Reached only when the browser has already been through login and come back
+ * with no usable identity. The user gets a short message; the detail that
+ * actually diagnoses it -- which Shibboleth variables arrived, names only,
+ * never values -- goes to the server error log, where it belongs.
  */
 function gg_auth_dead_end(): void
 {
-    $all = array_merge(GG_SHIB_MARKERS, GG_SHIB_NETID_ATTRS, GG_SHIB_OTHER_ATTRS);
-
-    $env = $redir = $hdr = [];
-    foreach ($all as $key) {
-        if (!empty($_SERVER[$key])) {
-            $env[] = $key;
-        }
-        foreach (array_slice(gg_env_keys($key), 1) as $prefixed) {
-            if (!empty($_SERVER[$prefixed])) {
-                $redir[] = $prefixed;
+    $found = [];
+    foreach (array_merge(GG_SHIB_MARKERS, GG_SHIB_NETID_ATTRS, GG_SHIB_OTHER_ATTRS) as $attr) {
+        foreach (gg_env_keys($attr) as $key) {
+            if (!empty($_SERVER[$key])) {
+                $found[] = $key;
             }
         }
-        // Reported but never trusted — see gg_env_keys(). Worth naming, because
-        // "environment empty but headers full" means the SP is running with
-        // ShibUseHeaders On and the server config needs changing, not the app.
-        if (!empty($_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $key))])) {
-            $hdr[] = $key;
+        // Headers are reported but never trusted (see gg_env_keys). Naming them
+        // matters: environment empty + headers full means the SP is running
+        // with ShibUseHeaders On, so the server config needs changing, not this.
+        $header = 'HTTP_' . strtoupper(str_replace('-', '_', $attr));
+        if (!empty($_SERVER[$header])) {
+            $found[] = $header;
         }
     }
-    // Anything else that smells like Shibboleth, in case the spelling differs.
-    $other = [];
-    foreach (array_keys($_SERVER) as $key) {
-        if (preg_match('/shib|assurance|affiliation|persistent.?id|targeted.?id/i', (string) $key)) {
-            $other[] = $key;
-        }
-    }
+
+    error_log(sprintf(
+        'GrammarGolf: login produced no identity for %s. Shibboleth variables present: %s. '
+        . 'None at all means this vhost exports no Shibboleth session (needs AuthType shibboleth '
+        . '+ ShibRequestSetting requireSession false); HTTP_-prefixed only means ShibUseHeaders is on.',
+        $_SERVER['REQUEST_URI'] ?? '?',
+        $found ? implode(', ', $found) : '(none)'
+    ));
 
     http_response_code(503);
     header('Content-Type: text/plain; charset=utf-8');
-    echo "Signed in, but this application received no identity.\n";
-    echo "Stopping here: redirecting again would loop between the app and the "
-       . "login service.\n\n";
-    echo 'As environment variables : ' . ($env ? implode(', ', $env) : '(none)') . "\n";
-    echo 'After internal redirect  : ' . ($redir ? implode(', ', $redir) : '(none)') . "\n";
-    echo 'As request headers       : ' . ($hdr ? implode(', ', $hdr) : '(none)') . "\n";
-    echo 'Other Shibboleth-ish keys: ' . ($other ? implode(', ', $other) : '(none)') . "\n\n";
-
-    if ($hdr && !$env && !$redir) {
-        echo "Shibboleth IS working, but the SP is exporting through request headers\n";
-        echo "(ShibUseHeaders On). This app reads environment variables, because a\n";
-        echo "header can be forged on any path mod_shib does not filter. Remove\n";
-        echo "ShibUseHeaders from the vhost so attributes arrive as env vars.\n";
-    } elseif (!$env && !$redir && !$hdr && !$other) {
-        echo "Nothing at all arrived, by either route. mod_shib can be installed and\n";
-        echo "the SP can be working while THIS virtual host still exports nothing —\n";
-        echo "attributes are only populated for requests mod_shib is told to handle.\n\n";
-        echo "In a RequestMap setup the host entry needs an authType, e.g.:\n\n";
-        echo "    <Host name=\"" . htmlspecialchars((string) ($_SERVER['HTTP_HOST'] ?? 'this-host'), ENT_NOQUOTES) . "\"\n";
-        echo "          authType=\"shibboleth\" requireSession=\"false\"/>\n\n";
-        echo "or, as Apache directives on the docroot:\n\n";
-        echo "    AuthType shibboleth\n";
-        echo "    ShibRequestSetting requireSession false\n";
-        echo "    require shibboleth\n\n";
-        echo "requireSession must stay false so /public/ and LTI launch POSTs still\n";
-        echo "reach the app without a login.\n";
-    } else {
-        echo "A session exists, but none of the attributes carry a netID. The app\n";
-        echo 'looks for: ' . implode(', ', GG_SHIB_NETID_ATTRS) . ", then mail.\n";
-        echo "Map one of those in the SP's attribute-map.xml, or send this list to\n";
-        echo "the maintainer so the app can read what your IdP actually releases.\n";
-    }
-    exit;
+    exit("Sign-in did not complete.\n\n"
+       . "You signed in successfully, but this application did not receive your\n"
+       . "identity, so it has stopped rather than sending you round again.\n\n"
+       . "Please report this to tll@stonybrook.edu -- the details are in the\n"
+       . "server error log.\n");
 }
 
 /** Send an unauthenticated browser to log in, then return to this page. */
